@@ -2,6 +2,7 @@ import React from "react";
 import Enzyme, { shallow } from "enzyme";
 import EnzymeAdapter from "enzyme-adapter-react-16";
 import App from "./App";
+import { error } from "util";
 
 Enzyme.configure({ adapter: new EnzymeAdapter() });
 
@@ -84,4 +85,51 @@ test("clicking the decrement button decrement the counter display", () => {
   //find display and test the value
   const counterDisplay = findByTestAttr(wrapper, "counter-display");
   expect(counterDisplay.text()).toContain(counter - 1);
+});
+
+test("show the error message when we decrement 0", () => {
+  const counter = 0;
+  const wrapper = setup(null, { counter });
+
+  //find decrement button and click
+  const decButton = findByTestAttr(wrapper, "decrement-button");
+  decButton.simulate("click");
+  wrapper.update();
+
+  //find error message
+  const errorMessage = findByTestAttr(wrapper, "error-message");
+  expect(errorMessage.length).toBe(1);
+
+  //the counter should be 0
+  const counterDisplay = findByTestAttr(wrapper, "counter-display");
+  expect(counterDisplay.text()).toContain(0);
+});
+
+test("hide error message when we increment above 0 after we show error", () => {
+  const counter = 0;
+  const wrapper = setup(null, { counter });
+
+  //find decrement button and click
+  const decButton = findByTestAttr(wrapper, "decrement-button");
+  decButton.simulate("click");
+  wrapper.update();
+
+  //find error message
+  const errorMessage = findByTestAttr(wrapper, "error-message");
+  expect(errorMessage.length).toBe(1);
+
+  //the counter should be 0
+  const counterDisplay = findByTestAttr(wrapper, "counter-display");
+  expect(counterDisplay.text()).toContain(0);
+
+  //find increment button and click
+  const button = findByTestAttr(wrapper, "increment-button");
+  button.simulate("click");
+  wrapper.update();
+
+  //expect error message to dissapear
+  const newCounterDisplay = findByTestAttr(wrapper, "counter-display");
+  expect(newCounterDisplay.text()).toContain(1);
+  const newErrorMessage = findByTestAttr(wrapper, "error-message");
+  expect(newErrorMessage.length).toBe(0);
 });
